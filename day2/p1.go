@@ -44,39 +44,42 @@ func readReports(fileName string) [][]int {
 	return reports
 }
 
-func getMonotinyFails(report []int) int {
-	fails := 0
-	increasing := report[1] > report[0]
-	for i := 2; i < len(report); i++ {
-		if (report[i] > report[i-1]) != increasing {
-			fails++
-		}
-	}
-	return fails
-}
-
-func getDiffFails(report []int) int {
-	fails := 0
+func getDiffs(report []int) []int {
+	diffs := []int{}
 	for i := 1; i < len(report); i++ {
-		diff :=	report[i] - report[i-1]
-		if diff < 0{
-			diff *= -1
-		}
-		if diff < 1 || diff > 3 {
-			fails++
-		}
+		diffs = append(diffs, report[i]-report[i-1])
 	}
-	return fails
+	return diffs
 }
 
 func isSafe(report []int) bool {
-	numFails := 0	
-	
-	numFails += getMonotinyFails(report)
+	diffs := getDiffs(report)
+	numFails := 0
 
-	numFails += getDiffFails(report)
+	positives := 0
+	negatives := 0
+	for _, diff := range diffs {
+		// safe diff?
+		absDiff := diff
+		if absDiff < 0 {
+			absDiff *= -1
+		}
+		if absDiff < 1 || absDiff > 3 {
+			numFails++
+		}
 
-	return numFails < 1
+		// monotonous?
+		if diff > 0 {
+			positives++
+		} else if diff < 0 {
+			negatives++
+		}
+	}
+	if positives > 0 && negatives > 0{
+		numFails++
+	}
+
+	return numFails < 2
 }
 
 func main() {
