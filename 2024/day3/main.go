@@ -4,38 +4,74 @@ import (
 	"fmt"
 	"strconv"
 	"unicode"
+	"os"
 )
 
-func getFactor(letter rune) {
-	if unicode.IsDigit(letter) {
-		factorStr += string(letter)
-	} else {
-		factorInt, err := strconv.Atoi(factorStr)
-		if err != nil {
-			panic(err)
+func getFactor(inputText string, startIndex int) (factor int, factorLen int, err error) {
+	factorStr := ""
+
+	var i int
+	for i = 0; i < 3; i++ {
+		digit := inputText[startIndex+i]
+		if unicode.IsDigit(rune(digit)) {
+			factorStr += string(digit)
+		} else {
+			break
 		}
 	}
+
+	factor, err = strconv.Atoi(factorStr)
+	if err != nil {
+		return -1, 0, err
+	}
+
+	return factor, i, nil
 }
 
 func getSumFromInput(inputText string) int {
-	// sum := 0
-	mulTemplate := "mul("
-	mulIndex := 0
+	sum := 0
+	i := 0
+	for i < len(inputText) {
+		if inputText[i] == 'm' &&
+			inputText[i+1] == 'u' &&
+			inputText[i+2] == 'l' &&
+			inputText[i+3] == '(' {
 
-	factorStr := ""
+			i += 4
 
-	for _, letter := range inputText {
-		// handle digits
-		if mulIndex >= len(mulTemplate) {
+			var f1 int
+			f1, factorLen, err := getFactor(inputText, i)
+			i += factorLen
+			if err != nil {
+				fmt.Println("unable to get f1")
+				continue
+			}
 
-			continue
-		}
+			if inputText[i] != ',' {
+				fmt.Println("no , found")
+				continue
+			}
+			i++
 
-		if letter == rune(mulTemplate[mulIndex]) {
-			mulIndex++
+			var f2 int
+			f2, factorLen, err = getFactor(inputText, i)
+			i += factorLen
+			if err != nil {
+				fmt.Println("unable to get f2")
+				continue
+			}
+
+			if inputText[i] != ')' {
+				fmt.Println("no end ) found")
+				continue
+			}
+
+			sum += f1 * f2
 		} else {
-			mulIndex = 0
+			fmt.Println(i, "no mul( found")
 		}
+
+		i++
 	}
 
 	// scanna genom sträng, hitta "mul("
@@ -45,15 +81,16 @@ func getSumFromInput(inputText string) int {
 	// hitta ")"
 
 	// OM ALLT: sum += f1*f2
-	return 0
+	return sum
 }
 
 func main() {
-	// fileBytes, err := os.ReadFile("input")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	//
-	// inputText := string(fileBytes)
-	getSumFromInput("mul8(21,100)mul(21,100)")
+	fileBytes, err := os.ReadFile("input")
+	if err != nil {
+		panic(err)
+	}
+
+	input := string(fileBytes)
+	// input := "mul(2,5)mul(2,10)"
+	fmt.Println(getSumFromInput(input))
 }
