@@ -72,14 +72,6 @@ func isMonotonous(diff int, isIncreasing bool) bool {
 	return true
 }
 
-func trySetFailIndex(i int, failIndex *int) bool {
-	if *failIndex != -1 {
-		return false
-	}
-
-	*failIndex = i
-	return true
-}
 
 func isSafe(report []int) (int, bool) {
 	diffs := getDiffs(report)
