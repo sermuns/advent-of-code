@@ -1,3 +1,4 @@
+#import calc: ceil, floor, rem
 
 #{
   set page(margin: 1em, fill: luma(5%))
@@ -18,52 +19,40 @@
   L82
   ```.text
 
-  let final-dial-position(input) = {
+  let calculate-zeroes(input) = {
     let lines = input.split("\n")
 
     let num-zeroes = 0
-    let dial-position = 50
+    let dial = 50
 
-    let out = [50 (0)\ ]
-    for line in lines {
-      if line.len() == 0 {
-        continue
-      }
-
-      let dir = line.at(0)
-      let value = int(line.slice(1))
-
-      if dir == "L" {
-        dial-position -= value
-      } else {
-        dial-position += value
-      }
-
+    let out = [[#sym.space #sym.space] 50 (0)\ ]
+    for (dir, value) in lines
+      .filter(l => l.len() > 0)
+      .map(l => (l.at(0), int(l.slice(1)))) {
       let new-zeroes = 0
 
-
-      while dial-position >= 100 {
-        dial-position -= 100
-        new-zeroes += 1
+      if dir == "R" {
+        dial += value
+        new-zeroes += floor(dial / 100)
+        dial = rem(dial, 100)
+      } else {
+        dial -= value
+        new-zeroes += -floor(dial / 100)
+        dial = rem(dial, 100)
+        if dial < 0 {
+          dial += 100
+        }
       }
-      while dial-position < 0 {
-        dial-position += 100
-        new-zeroes += 1
-      }
 
-      if new-zeroes == 0 and dial-position == 0 {
-        new-zeroes += 1
-      }
-
-      out += [#dial-position (#new-zeroes) \ ]
-
+      out += [[#dir;#value] #dial (#new-zeroes) \ ]
       num-zeroes += new-zeroes
     }
     [*#num-zeroes* \ ]
     out
   }
 
-  final-dial-position(input)
+  calculate-zeroes(input)
 }
 
 // 7273 incorrect
+// 6789 is correct
