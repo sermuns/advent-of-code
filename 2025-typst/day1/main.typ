@@ -1,4 +1,8 @@
+
 #{
+  set page(margin: 1em, fill: luma(5%))
+  set text(fill: luma(90%), font: "MonaspiceKr NFM")
+
   let input = read("input")
 
   let sample = ```
@@ -20,6 +24,7 @@
     let num-zeroes = 0
     let dial-position = 50
 
+    let out = [50 (0)\ ]
     for line in lines {
       if line.len() == 0 {
         continue
@@ -34,19 +39,31 @@
         dial-position += value
       }
 
-      if dial-position == 0 {
-        num-zeroes += 1
+      let new-zeroes = 0
+
+
+      while dial-position >= 100 {
+        dial-position -= 100
+        new-zeroes += 1
+      }
+      while dial-position < 0 {
+        dial-position += 100
+        new-zeroes += 1
       }
 
-      if dial-position >= 100 {
-        dial-position -= 100
-      } else if dial-position < 0 {
-        dial-position += 100
+      if new-zeroes == 0 and dial-position == 0 {
+        new-zeroes += 1
       }
-      [#dial-position \ ]
+
+      out += [#dial-position (#new-zeroes) \ ]
+
+      num-zeroes += new-zeroes
     }
-    // num-zeroes
+    [*#num-zeroes* \ ]
+    out
   }
 
-  final-dial-position(sample)
+  final-dial-position(input)
 }
+
+// 7273 incorrect
