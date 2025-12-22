@@ -1,10 +1,7 @@
 #import calc: ceil, floor, rem
 
 #{
-  set page(margin: 1em, fill: luma(5%))
-  set text(fill: luma(90%), font: "MonaspiceKr NFM")
-
-  let input = read("input")
+  let input1 = read("input1")
 
   let sample = ```
   L68
@@ -19,39 +16,44 @@
   L82
   ```.text
 
-  let calculate-zeroes(input) = {
-    let lines = input.split("\n")
-
+  let get-num-zeroes(input) = {
+    let out = []
     let num-zeroes = 0
-    let dial = 50
+    let dial-position = 50
+    out += [#dial-position (0) \ ]
 
-    let out = [[#sym.space #sym.space] 50 (0)\ ]
-    for (dir, value) in lines
-      .filter(l => l.len() > 0)
-      .map(l => (l.at(0), int(l.slice(1)))) {
-      let new-zeroes = 0
+    for line in input.split("\n").filter(l => l.len() > 0) {
+      let dir = line.at(0)
+      let value = int(line.slice(1))
 
-      if dir == "R" {
-        dial += value
-        new-zeroes += floor(dial / 100)
-        dial = rem(dial, 100)
-      } else {
-        dial -= value
-        new-zeroes += -floor(dial / 100)
-        dial = rem(dial, 100)
-        if dial < 0 {
-          dial += 100
-        }
+      if dir == "L" {
+        dial-position -= value
+      } else if dir == "R" {
+        dial-position += value
       }
 
-      out += [[#dir;#value] #dial (#new-zeroes) \ ]
+
+      let new-zeroes = 0
+
+      new-zeroes += calc.abs(calc.div-euclid(dial-position, 100))
+      while dial-position < 0 {
+        dial-position += 100
+      }
+      dial-position = calc.rem-euclid(dial-position, 100)
+      if dial-position == 0 {
+        // new-zeroes += 1
+      }
+
       num-zeroes += new-zeroes
+      out += [#dial-position (#new-zeroes) \ ]
     }
-    [*#num-zeroes* \ ]
-    out
+    [
+      *#num-zeroes* \
+      #out
+    ]
   }
 
-  calculate-zeroes(input)
+  get-num-zeroes(input1)
 }
 
 // 7273 incorrect
